@@ -10,9 +10,9 @@
                         _.forEach(pages, function(key, value){
                             _.forEach(key, function(ikey, slug){ %>
                             <li>
-                                <a href="/<%= slug %>"><i class="fa fa-flask"></i> <span
+                            <a href="<%= slug %>.html"><i class="fa fa-flask"></i> <span
                                         class="nav-label"> <%= ikey['title']
-                                %>.html</span></a>
+                                        %></span></a>
                             </li>
                     <% }); %>
                     <% }); %>
