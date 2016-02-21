@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/font-awesome/css/font-awesome.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/plugins/toastr/toastr.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/animate.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/style.css">
+
+	<link rel="stylesheet" type="text/css" href="/static/prism/prism.css">
+    <script src='/static/prism/prism.js'></script>
+
+</head>
+
+<body class="no-skin-config">
+
+<div id="wrapper">
+
+        <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                <div class="logo-element">
+                    BioX
+                </div>
+                </li>
+                <li>
+                <a href="/home"><i class="fa fa-desktop"></i> <span class="nav-label">Home</span></a>
+                </li>
+                    
+                            <li>
+                                <a href="/home"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Home</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/findsamples"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Find Samples</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/workflow"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Workflow</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/example001"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Example-001</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/example002"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Example-002</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/specialvariables"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Special Variables</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/showcase"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Showcase</span></a>
+                            </li>
+                    
+                    
+            </ul>
+        </div>
+    </nav>
+
+
+    <div id="page-wrapper" class="gray-bg">
+
+	
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                <div class="navbar-header">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                </div>
+                <ul class="nav navbar-top-links navbar-right">
+                    <li>
+                    <span class="m-r-sm text-muted
+                    welcome-message">BioX-Workflow</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+
+        <!--BEGIN Breadcrumbs-->
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>BioX-Workflow</h2>
+                <ol class="breadcrumb">
+                    <li>
+                    <a class="main-nav-link" href="#"></a>
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <!--END BREADCRUMBS-->
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+
+            <div id="wrap" class="row">
+                <div class="outer">
+                    <!--BEGIN Main Content-->
+                    <div class="col-lg-8">
+
+                    <h1> Showcase </h1>
+
+Here are some real live examples of production workflows.
+
+
+
+    <h2> rnaseq.yml </h2>
+    <h3> Description </h3>
+    <p> Here is a description! </p>
+        <!--Begin Table-->
+        <div class="ibox float-e-margins">
+            <!--BEGIN ibox-title-->
+            <div class="ibox-title">
+                <h5>rnaseq.yml</h5>
+                
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <!--END ibox-title-->
+            <!--BEGIN ibox-content-->
+            <div class="ibox-content">
+<pre>
+<code class="language-yaml">
+---
+use:
+    - Slurp
+    - Data::Dumper
+global:
+    - indir: data/processed/rename
+    - outdir: data/processed
+    - ROOT: data/processed
+    - file_rule: (Sample.*)$
+    - by_sample_outdir: 1
+    - find_by_dir: 1
+    - trimmomatic_dir: "data/processed/{$sample}/trimmomatic"
+    - analysis_dir: "data/processed/analysis"
+    - data_dir: "/scratch/Reference_Genomes/Public/Invertebrate/Drosophila_melanogaster/ENSEMBL-release-81-BDGP6"
+    - ANNOTATION: "{$self->data_dir}/Drosophila_melanogaster.BDGP6.81.gtf"
+    - REFERENCE: "{$self->data_dir}/Drosophila_melanogaster.BDGP6.dna.toplevel.fa"
+    - htseq_dir: "data/processed/analysis/Counts"
+    - other_regexp: Sample_(\w+)_(\w+)
+rules:
+    - raw_fastqc:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB 
+                        #HPC walltime=24:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=3
+                        #HPC jobname=raw_fastqc
+        process: |
+
+            #NOTE job_tags={$sample}
+            mkdir -p {$self->{outdir}}/{$sample}_R1_FASTQC && \
+                cat {$self->indir}/*_R1_*gz >  {$self->outdir}/{$sample}_read1.fastq.gz && \
+                /scratch/jdr400/software/FastQC/fastqc {$self->outdir}/{$sample}_read1.fastq.gz --extract -o {$self->{outdir}}/{$sample}_R1_FASTQC/ -t 4
+            
+            #NOTE job_tags={$sample}
+            mkdir -p {$self->{outdir}}/{$sample}_R2_FASTQC && \
+                cat {$self->indir}/*_R2_*gz >  {$self->outdir}/{$sample}_read2.fastq.gz && \
+                /scratch/jdr400/software/FastQC/fastqc {$self->outdir}/{$sample}_read2.fastq.gz --extract -o {$self->{outdir}}/{$sample}_R2_FASTQC/ -t 4
+    - trimmomatic:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=48GB 
+                        #HPC walltime=24:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=trimmomatic
+                        #
+        process: |
+               #NOTE job_tags={$sample}
+               java -jar /share/apps/NYUAD/trimmomatic/0.32/trimmomatic-0.32.jar PE -threads 12 -phred33 -trimlog {$self->outdir}/{$sample}_trimmomatic.log \
+                 {$self->indir}/{$sample}_read1.fastq.gz {$self->indir}/{$sample}_read2.fastq.gz \
+                 {$self->outdir}/{$sample}_read1_trimmomatic_1PE {$self->outdir}/{$sample}_read1_trimmomatic_1SE \
+                {$self->outdir}/{$sample}_read2_trimmomatic_2PE {$self->outdir}/{$sample}_read2_trimmomatic_2SE \
+                ILLUMINACLIP:/scratch/nd48/Tools/bin/trimmomatic_adapter.fa:2:30:10 TRAILING:3 LEADING:3 SLIDINGWINDOW:4:15 MINLEN:36
+    - trimmomatic_fastqc:
+        local: 
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=48GB 
+                        #HPC walltime=48:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=3
+                        #HPC jobname=trimmomatic_fastqc
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                mkdir -p {$self->outdir}/{$sample}_FASTQC_read1_TRIMMED && \
+                        /scratch/jdr400/software/FastQC/fastqc {$self->indir}/{$sample}_read1_trimmomatic_1PE --extract -o {$self->outdir}/{$sample}_FASTQC_read1_TRIMMED/ -t 4
+
+                #NOTE job_tags={$sample}
+                mkdir -p {$self->outdir}/{$sample}_FASTQC_read2_TRIMMED && \
+                        /scratch/jdr400/software/FastQC/fastqc {$self->indir}/{$sample}_read2_trimmomatic_2PE --extract -o {$self->outdir}/{$sample}_FASTQC_read2_TRIMMED/ -t 4
+    - trimmomatic_gzip:
+        local:
+                - indir: "data/processed/{$sample}"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=24GB 
+                        #HPC walltime=5:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=4
+                        #HPC jobname=trimmomatic_gzip
+                        #
+        process: |
+               #NOTE job_tags={$sample}
+                gzip {$self->indir}/trimmomatic/{$sample}_read1_trimmomatic_1PE
+
+                #NOTE job_tags={$sample}
+                gzip {$self->indir}/trimmomatic/{$sample}_read2_trimmomatic_2PE
+    - analysis:
+        override_process: 1
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 apps tuxedo/2.0
+                        #HPC mem=24GB
+                        #HPC walltime=00:10:00
+                        #HPC queue=adserial
+                        #HPC cpus_per_task=12
+                        #HPC jobname=analysis_dirs
+                        #
+        process: |
+                mkdir -p {$self->{analysis_dir}}/FPKMs &&  \
+                mkdir -p {$self->{analysis_dir}}/BAMs  && \
+                mkdir -p {$self->{analysis_dir}}/Transcripts && \
+                mkdir -p {$self->{analysis_dir}}/CUFFDIFF && \
+                mkdir -p {$self->{analysis_dir}}/Counts && \
+                mkdir -p {$self->{analysis_dir}}/Counts/DESeq3
+    - bowtie:
+        override_process: 1
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 apps tuxedo/2.0
+                        #HPC mem=24GB
+                        #HPC walltime=01:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC jobname=bowtie2
+                        #
+
+        process: |
+                bowtie2-inspect {$self->REFERENCE} > {$self->outdir}/Drosophila_melanogaster.BDGP6.dna.toplevel.fa.fa && \
+                  cp -rf {$self->data_dir}/Dros* {$self->outdir}
+    - tophat2:
+        override_process: 0
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 apps tuxedo/2.0
+                        #HPC mem=24GB
+                        #HPC walltime=48:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC procs=1
+                        #HPC jobname=tophat2
+                        #HPC commands_per_node=2
+                        #
+                - trimmomatic_dir: "data/processed/{$sample}/trimmomatic"
+                - bowtie_dir: "data/processed/{$sample}/bowtie"
+                - REFERENCE: "data/processed/bowtie/Drosophila_melanogaster.BDGP6.dna.toplevel.fa"
+                - ANNOTATION: "data/processed/bowtie/Drosophila_melanogaster.BDGP6.81.gtf"
+        process: |
+            #NOTE job_tags={$sample}
+            tophat2 --no-novel-juncs -G {$self->ANNOTATION} -p 12 -o {$self->outdir}/ \
+                {$self->{REFERENCE}} {$self->trimmomatic_dir}/{$sample}_read1_trimmomatic_1PE.gz \
+                {$self->trimmomatic_dir}/{$sample}_read2_trimmomatic_2PE.gz
+    - cufflinks:
+        override_process: 0
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 apps tuxedo/2.0
+                        #HPC mem=24GB
+                        #HPC walltime=48:00:00
+                        #HPC cpus_per_task=12
+                        #HPC procs=1
+                        #HPC commands_per_node=2
+                        #HPC jobname=cufflinks
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                cufflinks -p 12 -o {$self->outdir} -G {$self->ANNOTATION} {$self->indir}/accepted_hits.bam && \
+                cp {$self->indir}/accepted_hits.bam {$self->analysis_dir}/BAMs/{$sample}_accepted_hits.bam && \
+                cp {$self->outdir}/gene* {$self->analysis_dir}/FPKMs/{$sample}_gene_fpkms.txt && \
+                cp {$self->outdir}/transcrip* {$self->analysis_dir}/Transcripts/{$sample}_transcripts.gtf
+    - samtools_sort:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 ncurses/5.9 samtools/1.2 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB
+                        #HPC walltime=24:00:00
+                        #HPC queue=adserial
+                        #HPC cpus_per_task=12
+                        #HPC commands_per_node=2
+                        #HPC procs=1
+                        #HPC jobname=samtools_sort
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools sort -n -@ 12 -O bam -T {$self->analysis_dir}/BAMs/sorted.{$sample}.bam -o {$self->analysis_dir}/BAMs/sorted_bam_{$sample}.bam {$self->analysis_dir}/BAMs/{$sample}_accepted_hits.bam
+    - htseq_count:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 ncurses/5.9 samtools/1.2 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB
+                        #HPC walltime=24:00:00
+                        #HPC queue=adserial
+                        #HPC cpus_per_task=12
+                        #HPC commands_per_node=2
+                        #HPC jobname=htseq_count
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                name=`echo {$sample}| sed s/Sample_//` && \
+                htseq-count -f bam -s no -t exon -i gene_id {$self->analysis_dir}/BAMs/sorted_bam_{$sample}.bam {$self->{ANNOTATION}} > {$self->analysis_dir}/Counts/htseq_$name.txt
+    - deseq2:
+        override_process: 1
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB 
+                        #HPC walltime=24:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC jobname=deseq2
+                        #
+        process: |
+            {
+                my $data = {self => \$self};
+                my $project_dir = {$self->PROJECT};
+                open(my $fh, ">$self->{PROJECT}/script/make_deseq2.R");
+                Text::Template::fill_in_file("$self->{PROJECT}/conf/make_deseq2.tpl", HASH => $data, OUTPUT => $fh);
+                $OUT .= "Rscript $self->{PROJECT}/script/make_deseq2.R"
+            }
+
+</code>
+</pre>
+            </div>
+            <!--END ibox-content-->
+    </div>
+
+
+    <h2> rename_samples.yml </h2>
+    <h3> Description </h3>
+    <p> Here is a description! </p>
+        <!--Begin Table-->
+        <div class="ibox float-e-margins">
+            <!--BEGIN ibox-title-->
+            <div class="ibox-title">
+                <h5>rename_samples.yml</h5>
+                
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <!--END ibox-title-->
+            <!--BEGIN ibox-content-->
+            <div class="ibox-content">
+<pre>
+<code class="language-yaml">
+---
+global:
+    - indir: data/raw
+    - outdir: data/processed
+    - file_rule: (Sample_.*)$
+    - other_regexp: Sample_(\w+)-(\w+)
+    - by_sample_outdir: 1
+    - find_by_dir: 1
+rules:
+    - rename:
+        local:
+            - outdir: data/processed/rename
+        override_process: 1
+        process: |
+                {
+                my @vals = $self->attr->get_values('other_regexp');
+                my $text = $vals[0];
+                my $href = {};
+
+                $OUT .= "touch ".$self->outdir."/sample_key\n\n";
+
+                foreach my $sample (@{$self->samples}){
+                    if($sample =~ qr/$text/){
+                        my(@match) = $sample =~ qr/$text/;
+                        my($cond, $repl) = ($match[0], $match[1]);
+                        if(exists $href->{$cond}){
+                            my $count = $href->{$cond}; 
+                            $count += 1;
+                            $href->{$cond} = $count;
+                        }
+                        else{
+                            $href->{$cond} = 1;
+                        }
+                            my $tt = $href->{$cond};
+                            $OUT .= "echo $sample\tSample_$cond"."_$tt >> ".$self->outdir."/sample_key && \\\n";
+                            $OUT .= "\tcp -rf ".$self->indir."/$sample ".$self->outdir."/Sample_".$cond."_".$href->{$cond}." && \\\n";
+                            $OUT .= "\tfind ".$self->outdir."/Sample_".$cond."_"."$tt -name '$sample*' -print0 |xargs -0 -I {} rename -v s'/-$repl/_$tt/g' {} \n\n";
+
+                    }
+                    else{
+                        $OUT .= "#Sample $sample doesn't match regexp $text!\n";
+                    }
+                }
+                }
+
+
+</code>
+</pre>
+            </div>
+            <!--END ibox-content-->
+    </div>
+
+
+    <h2> snpcalling.yml </h2>
+    <h3> Description </h3>
+    <p> Here is a description! </p>
+        <!--Begin Table-->
+        <div class="ibox float-e-margins">
+            <!--BEGIN ibox-title-->
+            <div class="ibox-title">
+                <h5>snpcalling.yml</h5>
+                
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <!--END ibox-title-->
+            <!--BEGIN ibox-content-->
+            <div class="ibox-content">
+<pre>
+<code class="language-yaml">
+---
+global:
+    - indir: data/raw 
+    - outdir: data/Analysis 
+    - reference: /scratch/Reference_Genomes/Public/Vertebrate_other/Anolis_Carolinensis/AnoCar2.0/anoCar2.fa
+    - bowtie_tmp_dir: "data/Analysis/{$sample}/Bowtie2/tmp"
+    - file_rule: (Sample.*)$
+    - by_sample_outdir: 1
+    - find_by_dir: 1
+rules:
+    - Bowtie2:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 bowtie/2.2.6
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=bowtie2
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                bowtie2 -p 12 -x {$self->reference} -1 {$self->indir}/{$sample}_TRIMMOMATIC/{$sample}_read1_trimmomatic_1PE.gz -2 {$self->indir}/{$sample}_TRIMMOMATIC/{$sample}_read2_trimmomatic_2PE.gz -S {$self->outdir}/{$sample}_aligned.sam
+    - samtools_view:
+        local:
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=samtools_view
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools view -b -S {$self->indir}/{$sample}_aligned.sam > {$self->indir}/{$sample}_aligned.bam
+    - samtools_sort:
+        local:
+                - indir: "data/Analysis/{$sample}/Bowtie2"
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=samtools_sort
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools sort -@ 6 {$self->indir}/{$sample}_aligned.bam -f {$self->indir}/{$sample}_aligned.sorted.bam
+    - samtools_index:
+        local:
+                - indir: "data/Analysis/{$sample}/Bowtie2"
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2
+                        #HPC mem=40GB 
+                        #HPC walltime=05:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=samtools_index
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools index {$self->indir}/{$sample}_aligned.sorted.bam
+    - picard_cleansam:
+        local:
+                - indir: "data/Analysis/{$sample}/Bowtie2"
+                - outdir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 jdk/1.8.0_31
+                        #HPC mem=40GB 
+                        #HPC walltime=05:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=picard_cleansam
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                java -Xmx2g -jar /share/apps/picard/1.82/CleanSam.jar INPUT={$self->indir}/{$sample}_aligned.bam O={$self->outdir}/{$sample}_cleaned.aligned.bam TMP_DIR={$self->bowtie_tmp_dir}
+    - picard_sortsam:
+        local:
+                - indir: "data/Analysis/{$sample}/Picard"
+                - outdir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 jdk/1.8.0_31
+                        #HPC mem=40GB 
+                        #HPC walltime=05:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=picard_sortsam
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                java -Xmx2g -jar /share/apps/picard/1.82/SortSam.jar INPUT={$self->indir}/{$sample}_cleaned.aligned.bam O={$self->outdir}/{$sample}_csorted.cleaned.aligned.bam SO=coordinate TMP_DIR={$self->bowtie_tmp_dir}
+    - picard_markdups:
+        local:
+                - indir: "data/Analysis/{$sample}/Picard"
+                - outdir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 jdk/1.8.0_31
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=picard_markdups
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                java -Xmx2g -jar /share/apps/picard/1.82/MarkDuplicates.jar M={$self->indir}/{$sample}_markDup_metrics_file.txt I={$self->indir}/{$sample}_csorted.cleaned.aligned.bam O={$self->outdir}/{$sample}_mdup.csorted.cleaned.aligned.bam TMP_DIR={$self->bowtie_tmp_dir} MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=100
+    - picard_bamindex:
+        local:
+                - indir: "data/Analysis/{$sample}/Picard"
+                - outdir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 jdk/1.8.0_31
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=picard_bamindex
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                java -Xmx2g -jar /share/apps/picard/1.82/BuildBamIndex.jar I={$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.bam TMP_DIR={$self->bowtie_tmp_dir}
+    - samtools_mpileup:
+        local:
+                - indir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=samtools_mpileup
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools mpileup -ugf {$self->reference} {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.bam | bcftools call -vmO z -o  {$self->outdir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.gz 
+    - tabix_index:
+        local:
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=tabix_index
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                tabix -p vcf {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.gz 
+    - bcftools_stats:
+        local:
+                - indir: "data/Analysis/{$sample}/samtools_mpileup"
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=bcftools_stats
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                bcftools stats -F {$self->reference} -s - {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.gz > {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.stats
+    - bcftools_filter:
+        local:
+                - indir: "data/Analysis/{$sample}/samtools_mpileup"
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=bcftools_filter
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                bcftools filter -O z -o {$self->indir}/{$sample}_filteredQ10.mdup.csorted.cleaned.aligned.vcf.gz -s LOWQUAL -i'%QUAL>10' {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.gz 
+    - remove_tmp:
+        local:
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=01:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=12
+                        #HPC jobname=remove_tmp
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                rm -rf {$self->bowtie_tmp_dir}
+
+</code>
+</pre>
+            </div>
+            <!--END ibox-content-->
+    </div>
+
+                    </div>
+                    <div class="col-lg-4">
+
+                        <p>There will be a sidebar here!</p>
+                        
+<!--BEGIN row-->
+<!--<div class="row">-->
+        <!--Begin Table-->
+        <div class="ibox float-e-margins">
+            <!--BEGIN ibox-title-->
+            <div class="ibox-title">
+                <h5>Tags</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <!--END ibox-title-->
+            <!--BEGIN ibox-content-->
+            <div class="ibox-content">
+                <table class="table table-striped">
+                    <tbody>
+
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Samples  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Structure  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Files  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Directories  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Examples  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Configuration  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Rules  </td>
+                    </tr>
+                    
+
+                    </tbody>
+                </table>
+                <!--END Table-->
+            </div>
+            <!--END ibox-content-->
+    </div>
+<!--</div>-->
+<!--END row-->
+
+
+                    </div>
+                    <!--END Main Content-->
+                </div>
+            </div>
+
+	
+
+            <div class="footer">
+                <div class="pull-right">
+                    <!--Add a URL here-->
+                    Powered by <strong>Harp.js</strong> Free.
+                </div>
+                <div>
+                    <strong>CGSB GenCore</strong> NYUAD &copy; 2015-2016
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<!--Inspinia Scripts-->
+<script src='/static/inspinia/js/jquery-2.1.1.js'></script>
+<script src='/static/inspinia/js/bootstrap.min.js'></script>
+<script src='/static/inspinia/js/plugins/metisMenu/jquery.metisMenu.js'></script>
+<script src='/static/inspinia/js/plugins/slimscroll/jquery.slimscroll.min.js'></script>
+<script src='/static/inspinia/js/inspinia.js'></script>
+<script src='/static/inspinia/js/plugins/pace/pace.min.js'></script>
+
+
+
+</body>
+
+
+</html>

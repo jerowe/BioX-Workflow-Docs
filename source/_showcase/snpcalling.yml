@@ -1,0 +1,251 @@
+---
+global:
+    - indir: data/raw 
+    - outdir: data/Analysis 
+    - reference: /scratch/Reference_Genomes/Public/Vertebrate_other/Anolis_Carolinensis/AnoCar2.0/anoCar2.fa
+    - bowtie_tmp_dir: "data/Analysis/{$sample}/Bowtie2/tmp"
+    - file_rule: (Sample.*)$
+    - by_sample_outdir: 1
+    - find_by_dir: 1
+rules:
+    - Bowtie2:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 bowtie/2.2.6
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=bowtie2
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                bowtie2 -p 12 -x {$self->reference} -1 {$self->indir}/{$sample}_TRIMMOMATIC/{$sample}_read1_trimmomatic_1PE.gz -2 {$self->indir}/{$sample}_TRIMMOMATIC/{$sample}_read2_trimmomatic_2PE.gz -S {$self->outdir}/{$sample}_aligned.sam
+    - samtools_view:
+        local:
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=samtools_view
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools view -b -S {$self->indir}/{$sample}_aligned.sam > {$self->indir}/{$sample}_aligned.bam
+    - samtools_sort:
+        local:
+                - indir: "data/Analysis/{$sample}/Bowtie2"
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=samtools_sort
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools sort -@ 6 {$self->indir}/{$sample}_aligned.bam -f {$self->indir}/{$sample}_aligned.sorted.bam
+    - samtools_index:
+        local:
+                - indir: "data/Analysis/{$sample}/Bowtie2"
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2
+                        #HPC mem=40GB 
+                        #HPC walltime=05:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=samtools_index
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools index {$self->indir}/{$sample}_aligned.sorted.bam
+    - picard_cleansam:
+        local:
+                - indir: "data/Analysis/{$sample}/Bowtie2"
+                - outdir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 jdk/1.8.0_31
+                        #HPC mem=40GB 
+                        #HPC walltime=05:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=picard_cleansam
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                java -Xmx2g -jar /share/apps/picard/1.82/CleanSam.jar INPUT={$self->indir}/{$sample}_aligned.bam O={$self->outdir}/{$sample}_cleaned.aligned.bam TMP_DIR={$self->bowtie_tmp_dir}
+    - picard_sortsam:
+        local:
+                - indir: "data/Analysis/{$sample}/Picard"
+                - outdir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 jdk/1.8.0_31
+                        #HPC mem=40GB 
+                        #HPC walltime=05:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=picard_sortsam
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                java -Xmx2g -jar /share/apps/picard/1.82/SortSam.jar INPUT={$self->indir}/{$sample}_cleaned.aligned.bam O={$self->outdir}/{$sample}_csorted.cleaned.aligned.bam SO=coordinate TMP_DIR={$self->bowtie_tmp_dir}
+    - picard_markdups:
+        local:
+                - indir: "data/Analysis/{$sample}/Picard"
+                - outdir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 jdk/1.8.0_31
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=picard_markdups
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                java -Xmx2g -jar /share/apps/picard/1.82/MarkDuplicates.jar M={$self->indir}/{$sample}_markDup_metrics_file.txt I={$self->indir}/{$sample}_csorted.cleaned.aligned.bam O={$self->outdir}/{$sample}_mdup.csorted.cleaned.aligned.bam TMP_DIR={$self->bowtie_tmp_dir} MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=100
+    - picard_bamindex:
+        local:
+                - indir: "data/Analysis/{$sample}/Picard"
+                - outdir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 jdk/1.8.0_31
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=picard_bamindex
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                java -Xmx2g -jar /share/apps/picard/1.82/BuildBamIndex.jar I={$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.bam TMP_DIR={$self->bowtie_tmp_dir}
+    - samtools_mpileup:
+        local:
+                - indir: "data/Analysis/{$sample}/Picard"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=samtools_mpileup
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools mpileup -ugf {$self->reference} {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.bam | bcftools call -vmO z -o  {$self->outdir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.gz 
+    - tabix_index:
+        local:
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=tabix_index
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                tabix -p vcf {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.gz 
+    - bcftools_stats:
+        local:
+                - indir: "data/Analysis/{$sample}/samtools_mpileup"
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=bcftools_stats
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                bcftools stats -F {$self->reference} -s - {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.gz > {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.stats
+    - bcftools_filter:
+        local:
+                - indir: "data/Analysis/{$sample}/samtools_mpileup"
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=10:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=bcftools_filter
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                bcftools filter -O z -o {$self->indir}/{$sample}_filteredQ10.mdup.csorted.cleaned.aligned.vcf.gz -s LOWQUAL -i'%QUAL>10' {$self->indir}/{$sample}_mdup.csorted.cleaned.aligned.vcf.gz 
+    - remove_tmp:
+        local:
+                - create_outdir: 0
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1 ncurses samtools/1.2 bcftools/1.2 htslib
+                        #HPC mem=40GB 
+                        #HPC walltime=01:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=12
+                        #HPC jobname=remove_tmp
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                rm -rf {$self->bowtie_tmp_dir}

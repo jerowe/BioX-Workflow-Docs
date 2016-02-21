@@ -1,0 +1,11 @@
+<% layout('boilerplate') -%>
+
+<div class="embed-responsive embed-responsive-4by3">
+    <% if(readtype === "qc_qt") { %> 
+	  <iframe class="embed-responsive-item" src="http://10.230.9.182/<%= config.get('user') %>/static/<%= readtype %>/<%= sample %>_read<%= read %>_trimmomatic_<%= read %>PE_fastqc.html"></iframe>
+    <% } else { %>
+	  <iframe class="embed-responsive-item" src="http://10.230.9.182/<%= config.get('user') %>/static/<%= readtype %>/<%= sample %>_read<%= read %>_fastqc.html"></iframe>
+    <% } %>
+</div>
+
+

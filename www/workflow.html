@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/font-awesome/css/font-awesome.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/plugins/toastr/toastr.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/animate.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/style.css">
+
+	<link rel="stylesheet" type="text/css" href="/static/prism/prism.css">
+    <script src='/static/prism/prism.js'></script>
+
+</head>
+
+<body class="no-skin-config">
+
+<div id="wrapper">
+
+        <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                <div class="logo-element">
+                    BioX
+                </div>
+                </li>
+                <li>
+                <a href="/home"><i class="fa fa-desktop"></i> <span class="nav-label">Home</span></a>
+                </li>
+                    
+                            <li>
+                                <a href="/home"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Home</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/findsamples"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Find Samples</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/workflow"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Workflow</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/example001"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Example-001</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/example002"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Example-002</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/specialvariables"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Special Variables</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/showcase"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Showcase</span></a>
+                            </li>
+                    
+                    
+            </ul>
+        </div>
+    </nav>
+
+
+    <div id="page-wrapper" class="gray-bg">
+
+	
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                <div class="navbar-header">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                </div>
+                <ul class="nav navbar-top-links navbar-right">
+                    <li>
+                    <span class="m-r-sm text-muted
+                    welcome-message">BioX-Workflow</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+
+        <!--BEGIN Breadcrumbs-->
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>BioX-Workflow</h2>
+                <ol class="breadcrumb">
+                    <li>
+                    <a class="main-nav-link" href="#"></a>
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <!--END BREADCRUMBS-->
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+
+            <div id="wrap" class="row">
+                <div class="outer">
+                    <!--BEGIN Main Content-->
+                    <div class="col-lg-8">
+
+                    <h1>Workflow</h1><p>Your workflow is a set of rules and conditions. Conditions come in two flavors,
+local and global. Local variables are local to a rule, and go away after that
+rule has been processed, while global live throughout each rule iteration.</p>
+<h2>Local and Global Variables</h2><p>Global variables will always be available, but can be overwritten by local
+variables contained in your rules.</p>
+<pre><code>---
+global:
+    - indir: /home/user/example-workflow
+    - outdir: /home/user/example-workflow/gemini-wrapper
+    - file_rule: (.vcf)$|(.vcf.gz)$
+    - some_variable: {$self-&gt;indir}/file_to_keep_handy
+    - ext: txt
+rules:
+    - backup:
+        local:
+            - ext: &quot;backup&quot;
+        process: cp {$self-&gt;indir}/{$sample}.csv {$self-&gt;outdir}/{$sample}.{$self-&gt;ext}.csv
+    - rule2:
+        process: cp {$self-&gt;indir}/{$sample}.csv {$self-&gt;outdir}/{$sample}.{$self-&gt;ext}.csv
+</code></pre><h2>Rules</h2><p>Rules are processed in the order they appear.</p>
+<p>Before any rules are processed, first the samples are found. These are grepped using File::Basename, the indir, and the file_rule variable. The
+default is to get rid of the everything after the final &#39;.&#39; .</p>
+<h2>Overriding Processes</h2><p>By default your process is evaluated as</p>
+<pre><code>foreach my $sample (@{$self-&gt;samples}){
+    #Get the value from the process key.
+}
+</code></pre><p>If instead you would like to use the infiles, or some other random process that has nothing to do with your samples, you can override the process
+template. Make sure to use the previously defined $OUT. For more information see the <a href="https://metacpan.org/pod/Text::Template">Text::Template</a> man page.</p>
+<pre><code>rules:
+    - backup:
+        outdir: {$self-&gt;ROOT}/datafiles
+        override_process: 1
+        process: |
+            $OUT .= wget {$self-&gt;some_globally_defined_parameter}
+            {
+            foreach my $infile (@{$self-&gt;infiles}){
+                $OUT .= &quot;dostuff $infile&quot;;
+            }
+            }
+</code></pre>
+
+                    </div>
+                    <div class="col-lg-4">
+
+                        <p>There will be a sidebar here!</p>
+                        
+<!--BEGIN row-->
+<!--<div class="row">-->
+        <!--Begin Table-->
+        <div class="ibox float-e-margins">
+            <!--BEGIN ibox-title-->
+            <div class="ibox-title">
+                <h5>Tags</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <!--END ibox-title-->
+            <!--BEGIN ibox-content-->
+            <div class="ibox-content">
+                <table class="table table-striped">
+                    <tbody>
+
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Samples  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Structure  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Files  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Directories  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Examples  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Configuration  </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="word-break:break-all;">Rules  </td>
+                    </tr>
+                    
+
+                    </tbody>
+                </table>
+                <!--END Table-->
+            </div>
+            <!--END ibox-content-->
+    </div>
+<!--</div>-->
+<!--END row-->
+
+
+                    </div>
+                    <!--END Main Content-->
+                </div>
+            </div>
+
+	
+
+            <div class="footer">
+                <div class="pull-right">
+                    <!--Add a URL here-->
+                    Powered by <strong>Harp.js</strong> Free.
+                </div>
+                <div>
+                    <strong>CGSB GenCore</strong> NYUAD &copy; 2015-2016
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<!--Inspinia Scripts-->
+<script src='/static/inspinia/js/jquery-2.1.1.js'></script>
+<script src='/static/inspinia/js/bootstrap.min.js'></script>
+<script src='/static/inspinia/js/plugins/metisMenu/jquery.metisMenu.js'></script>
+<script src='/static/inspinia/js/plugins/slimscroll/jquery.slimscroll.min.js'></script>
+<script src='/static/inspinia/js/inspinia.js'></script>
+<script src='/static/inspinia/js/plugins/pace/pace.min.js'></script>
+
+
+
+</body>
+
+
+</html>

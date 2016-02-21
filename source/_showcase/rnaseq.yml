@@ -1,0 +1,250 @@
+---
+use:
+    - Slurp
+    - Data::Dumper
+global:
+    - indir: data/processed/rename
+    - outdir: data/processed
+    - ROOT: data/processed
+    - file_rule: (Sample.*)$
+    - by_sample_outdir: 1
+    - find_by_dir: 1
+    - trimmomatic_dir: "data/processed/{$sample}/trimmomatic"
+    - analysis_dir: "data/processed/analysis"
+    - data_dir: "/scratch/Reference_Genomes/Public/Invertebrate/Drosophila_melanogaster/ENSEMBL-release-81-BDGP6"
+    - ANNOTATION: "{$self->data_dir}/Drosophila_melanogaster.BDGP6.81.gtf"
+    - REFERENCE: "{$self->data_dir}/Drosophila_melanogaster.BDGP6.dna.toplevel.fa"
+    - htseq_dir: "data/processed/analysis/Counts"
+    - other_regexp: Sample_(\w+)_(\w+)
+rules:
+    - raw_fastqc:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB 
+                        #HPC walltime=24:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=3
+                        #HPC jobname=raw_fastqc
+        process: |
+
+            #NOTE job_tags={$sample}
+            mkdir -p {$self->{outdir}}/{$sample}_R1_FASTQC && \
+                cat {$self->indir}/*_R1_*gz >  {$self->outdir}/{$sample}_read1.fastq.gz && \
+                /scratch/jdr400/software/FastQC/fastqc {$self->outdir}/{$sample}_read1.fastq.gz --extract -o {$self->{outdir}}/{$sample}_R1_FASTQC/ -t 4
+            
+            #NOTE job_tags={$sample}
+            mkdir -p {$self->{outdir}}/{$sample}_R2_FASTQC && \
+                cat {$self->indir}/*_R2_*gz >  {$self->outdir}/{$sample}_read2.fastq.gz && \
+                /scratch/jdr400/software/FastQC/fastqc {$self->outdir}/{$sample}_read2.fastq.gz --extract -o {$self->{outdir}}/{$sample}_R2_FASTQC/ -t 4
+    - trimmomatic:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=48GB 
+                        #HPC walltime=24:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=trimmomatic
+                        #
+        process: |
+               #NOTE job_tags={$sample}
+               java -jar /share/apps/NYUAD/trimmomatic/0.32/trimmomatic-0.32.jar PE -threads 12 -phred33 -trimlog {$self->outdir}/{$sample}_trimmomatic.log \
+                 {$self->indir}/{$sample}_read1.fastq.gz {$self->indir}/{$sample}_read2.fastq.gz \
+                 {$self->outdir}/{$sample}_read1_trimmomatic_1PE {$self->outdir}/{$sample}_read1_trimmomatic_1SE \
+                {$self->outdir}/{$sample}_read2_trimmomatic_2PE {$self->outdir}/{$sample}_read2_trimmomatic_2SE \
+                ILLUMINACLIP:/scratch/nd48/Tools/bin/trimmomatic_adapter.fa:2:30:10 TRAILING:3 LEADING:3 SLIDINGWINDOW:4:15 MINLEN:36
+    - trimmomatic_fastqc:
+        local: 
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=48GB 
+                        #HPC walltime=48:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=3
+                        #HPC jobname=trimmomatic_fastqc
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                mkdir -p {$self->outdir}/{$sample}_FASTQC_read1_TRIMMED && \
+                        /scratch/jdr400/software/FastQC/fastqc {$self->indir}/{$sample}_read1_trimmomatic_1PE --extract -o {$self->outdir}/{$sample}_FASTQC_read1_TRIMMED/ -t 4
+
+                #NOTE job_tags={$sample}
+                mkdir -p {$self->outdir}/{$sample}_FASTQC_read2_TRIMMED && \
+                        /scratch/jdr400/software/FastQC/fastqc {$self->indir}/{$sample}_read2_trimmomatic_2PE --extract -o {$self->outdir}/{$sample}_FASTQC_read2_TRIMMED/ -t 4
+    - trimmomatic_gzip:
+        local:
+                - indir: "data/processed/{$sample}"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=24GB 
+                        #HPC walltime=5:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=4
+                        #HPC jobname=trimmomatic_gzip
+                        #
+        process: |
+               #NOTE job_tags={$sample}
+                gzip {$self->indir}/trimmomatic/{$sample}_read1_trimmomatic_1PE
+
+                #NOTE job_tags={$sample}
+                gzip {$self->indir}/trimmomatic/{$sample}_read2_trimmomatic_2PE
+    - analysis:
+        override_process: 1
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 apps tuxedo/2.0
+                        #HPC mem=24GB
+                        #HPC walltime=00:10:00
+                        #HPC queue=adserial
+                        #HPC cpus_per_task=12
+                        #HPC jobname=analysis_dirs
+                        #
+        process: |
+                mkdir -p {$self->{analysis_dir}}/FPKMs &&  \
+                mkdir -p {$self->{analysis_dir}}/BAMs  && \
+                mkdir -p {$self->{analysis_dir}}/Transcripts && \
+                mkdir -p {$self->{analysis_dir}}/CUFFDIFF && \
+                mkdir -p {$self->{analysis_dir}}/Counts && \
+                mkdir -p {$self->{analysis_dir}}/Counts/DESeq3
+    - bowtie:
+        override_process: 1
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 apps tuxedo/2.0
+                        #HPC mem=24GB
+                        #HPC walltime=01:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC jobname=bowtie2
+                        #
+
+        process: |
+                bowtie2-inspect {$self->REFERENCE} > {$self->outdir}/Drosophila_melanogaster.BDGP6.dna.toplevel.fa.fa && \
+                  cp -rf {$self->data_dir}/Dros* {$self->outdir}
+    - tophat2:
+        override_process: 0
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 apps tuxedo/2.0
+                        #HPC mem=24GB
+                        #HPC walltime=48:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC procs=1
+                        #HPC jobname=tophat2
+                        #HPC commands_per_node=2
+                        #
+                - trimmomatic_dir: "data/processed/{$sample}/trimmomatic"
+                - bowtie_dir: "data/processed/{$sample}/bowtie"
+                - REFERENCE: "data/processed/bowtie/Drosophila_melanogaster.BDGP6.dna.toplevel.fa"
+                - ANNOTATION: "data/processed/bowtie/Drosophila_melanogaster.BDGP6.81.gtf"
+        process: |
+            #NOTE job_tags={$sample}
+            tophat2 --no-novel-juncs -G {$self->ANNOTATION} -p 12 -o {$self->outdir}/ \
+                {$self->{REFERENCE}} {$self->trimmomatic_dir}/{$sample}_read1_trimmomatic_1PE.gz \
+                {$self->trimmomatic_dir}/{$sample}_read2_trimmomatic_2PE.gz
+    - cufflinks:
+        override_process: 0
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 apps tuxedo/2.0
+                        #HPC mem=24GB
+                        #HPC walltime=48:00:00
+                        #HPC cpus_per_task=12
+                        #HPC procs=1
+                        #HPC commands_per_node=2
+                        #HPC jobname=cufflinks
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                cufflinks -p 12 -o {$self->outdir} -G {$self->ANNOTATION} {$self->indir}/accepted_hits.bam && \
+                cp {$self->indir}/accepted_hits.bam {$self->analysis_dir}/BAMs/{$sample}_accepted_hits.bam && \
+                cp {$self->outdir}/gene* {$self->analysis_dir}/FPKMs/{$sample}_gene_fpkms.txt && \
+                cp {$self->outdir}/transcrip* {$self->analysis_dir}/Transcripts/{$sample}_transcripts.gtf
+    - samtools_sort:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 ncurses/5.9 samtools/1.2 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB
+                        #HPC walltime=24:00:00
+                        #HPC queue=adserial
+                        #HPC cpus_per_task=12
+                        #HPC commands_per_node=2
+                        #HPC procs=1
+                        #HPC jobname=samtools_sort
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                samtools sort -n -@ 12 -O bam -T {$self->analysis_dir}/BAMs/sorted.{$sample}.bam -o {$self->analysis_dir}/BAMs/sorted_bam_{$sample}.bam {$self->analysis_dir}/BAMs/{$sample}_accepted_hits.bam
+    - htseq_count:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 ncurses/5.9 samtools/1.2 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB
+                        #HPC walltime=24:00:00
+                        #HPC queue=adserial
+                        #HPC cpus_per_task=12
+                        #HPC commands_per_node=2
+                        #HPC jobname=htseq_count
+                        #
+        process: |
+                #NOTE job_tags={$sample}
+                name=`echo {$sample}| sed s/Sample_//` && \
+                htseq-count -f bam -s no -t exon -i gene_id {$self->analysis_dir}/BAMs/sorted_bam_{$sample}.bam {$self->{ANNOTATION}} > {$self->analysis_dir}/Counts/htseq_$name.txt
+    - deseq2:
+        override_process: 1
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 zlib/1.2.8 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB 
+                        #HPC walltime=24:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC jobname=deseq2
+                        #
+        process: |
+            {
+                my $data = {self => \$self};
+                my $project_dir = {$self->PROJECT};
+                open(my $fh, ">$self->{PROJECT}/script/make_deseq2.R");
+                Text::Template::fill_in_file("$self->{PROJECT}/conf/make_deseq2.tpl", HASH => $data, OUTPUT => $fh);
+                $OUT .= "Rscript $self->{PROJECT}/script/make_deseq2.R"
+            }

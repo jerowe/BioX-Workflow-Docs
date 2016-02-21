@@ -1,0 +1,39 @@
+<h1> Showcase </h1>
+
+Here are some real live examples of production workflows.
+
+<%
+    _.forEach(showcase, function(item, index){ %>
+
+    <h2> <%= item %> </h2>
+    <h3> Description </h3>
+    <p> Here is a description! </p>
+        <!--Begin Table-->
+        <div class="ibox float-e-margins">
+            <!--BEGIN ibox-title-->
+            <div class="ibox-title">
+                <h5><%= item %></h5>
+                <% item = "_showcase/" + item %>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <!--END ibox-title-->
+            <!--BEGIN ibox-content-->
+            <div class="ibox-content">
+<pre>
+<code class="language-yaml">
+<%- include(item) %>
+</code>
+</pre>
+            </div>
+            <!--END ibox-content-->
+    </div>
+<%});
+%>
+
