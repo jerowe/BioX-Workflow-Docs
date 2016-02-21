@@ -1,0 +1,51 @@
+<%- include _partial/head %>
+<body class="no-skin-config">
+
+<div id="wrapper">
+
+    <%- include _partial/side-nav %>
+
+    <div id="page-wrapper" class="gray-bg">
+
+	<%- include _partial/top-nav %>
+
+        <!--BEGIN Breadcrumbs-->
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>CBSB User Portal</h2>
+                <ol class="breadcrumb">
+                    <li>
+                    <a class="main-nav-link" href="#"></a>
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <!--END BREADCRUMBS-->
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+
+            <div id="wrap" class="row">
+                <div class="outer">
+                    <!--BEGIN Main Content-->
+                    <div class="col-lg-12">
+
+			<%= body %>
+
+                    </div>
+                    <!--END Main Content-->
+                </div>
+            </div>
+
+	<%- include _partial/footer %>
+
+        </div>
+    </div>
+</div>
+
+<%- include _partial/scripts %>
+
+
+</body>
+
+
+</html>

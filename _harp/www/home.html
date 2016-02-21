@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/font-awesome/css/font-awesome.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/plugins/toastr/toastr.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/animate.css">
+	<link rel="stylesheet" type="text/css" href="/static/inspinia/css/style.css">
+
+	<link rel="stylesheet" type="text/css" href="/static/prism/prism.css">
+    <script src='/static/prism/prism.js'></script>
+
+</head>
+
+<body class="no-skin-config">
+
+<div id="wrapper">
+
+        <nav class="navbar-default navbar-static-side" role="navigation">
+        <div class="sidebar-collapse">
+            <ul class="nav metismenu" id="side-menu">
+                <li class="nav-header">
+                <div class="logo-element">
+                    BioX
+                </div>
+                </li>
+                    
+                            <li>
+                                <a href="/home"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Home</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/findsamples"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Find Samples</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/workflow"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Workflow</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/example001"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Example-001</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/example002"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Example-002</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/specialvariables"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Special Variables</span></a>
+                            </li>
+                    
+                    
+                            <li>
+                                <a href="/showcase"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Showcase</span></a>
+                            </li>
+                    
+                    
+            </ul>
+        </div>
+    </nav>
+
+
+    <div id="page-wrapper" class="gray-bg">
+
+	
+        <div class="row border-bottom">
+            <nav class="navbar navbar-static-top" role="navigation" style="margin-bottom: 0">
+                <div class="navbar-header">
+                    <a class="navbar-minimalize minimalize-styl-2 btn btn-primary " href="#"><i class="fa fa-bars"></i> </a>
+                </div>
+                <ul class="nav navbar-top-links navbar-right">
+                    <li>
+                    <span class="m-r-sm text-muted
+                    welcome-message">BioX-Workflow</span>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+
+        <!--BEGIN Breadcrumbs-->
+        <div class="row wrapper border-bottom white-bg page-heading">
+            <div class="col-lg-10">
+                <h2>BioX-Workflow</h2>
+                <ol class="breadcrumb">
+                    <li>
+                    <a class="main-nav-link" href="#"></a>
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <!--END BREADCRUMBS-->
+
+        <div class="wrapper wrapper-content animated fadeInRight">
+
+            <div id="wrap" class="row">
+                <div class="outer">
+                    <!--BEGIN Main Content-->
+                    <div class="col-lg-12">
+
+                    <h1>Introduction</h1><p>Most bioinformatics workflows involve starting with a set of samples, and
+processing those samples in one or more steps. Also, most bioinformatics
+workflows are bash based, and no one wants to reinvent the wheel to rewrite
+their code in perl/python/whatever.</p>
+<p>Once you have your configuration all set, run</p>
+<pre><code class="language-bash">biox-workflow.pl --workflow workflow.yml &gt; workflow.sh
+</code></pre>
+<h1>InDepth</h1><h2>Samples</h2><p>For example with our samples test1.vcf and test2.vcf, we want to bgzip and
+annotate using snpeff, and then parse the output using vcf-to-table.pl
+(shameless plug for BioX::Wrapper::Annovar).</p>
+<p>BioX::Workflow assumes your have a set of inputs, known as samples,
+and these inputs will carry on through your pipeline. There are some exceptions
+to this, which we will explore with the resample option.</p>
+<p>BioX::Workflow also assumes your samples are files or directories. <strong>They may also
+be people, frogs, or cells, but first and foremost they are files.</strong></p>
+<h2>Structure</h2><p>It also makes several assumptions about your output structure. It assumes you
+have each of your processes/rules outputting to a distinct directory. Each of
+the assumptions BioX::Workflow makes can be overridden either globally or
+locally. These directories will be created and automatically named based on your process
+name.</p>
+<p>It also assumes the indir of each rule is the outdir of the previous rule.</p>
+<h2>All the things can be modified!</h2><p>All the variables can be modified from their defaults in order to enable custom
+control of your workflow.</p>
+
+                    </div>
+                    <!--<div class="col-lg-4">-->
+
+                        <!--<p>There will be a sidebar here!</p>-->
+                        <!-- include _partial/site-tags -->
+                    <!--</div>-->
+                    <!--END Main Content-->
+                </div>
+            </div>
+
+	
+
+            <div class="footer">
+                <div class="pull-right">
+                    <!--Add a URL here-->
+                    Powered by <strong>Harp.js</strong> Free.
+                </div>
+                <div>
+                    <strong>CGSB GenCore</strong> NYUAD &copy; 2015-2016
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<!--Inspinia Scripts-->
+<script src='/static/inspinia/js/jquery-2.1.1.js'></script>
+<script src='/static/inspinia/js/bootstrap.min.js'></script>
+<script src='/static/inspinia/js/plugins/metisMenu/jquery.metisMenu.js'></script>
+<script src='/static/inspinia/js/plugins/slimscroll/jquery.slimscroll.min.js'></script>
+<script src='/static/inspinia/js/inspinia.js'></script>
+<script src='/static/inspinia/js/plugins/pace/pace.min.js'></script>
+
+
+
+</body>
+
+
+</html>

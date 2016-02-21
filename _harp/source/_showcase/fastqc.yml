@@ -1,0 +1,103 @@
+---
+use:
+    - Slurp
+    - Data::Dumper
+    - Cwd
+global:
+    - indir: "data/raw" 
+    - outdir: "data/processed" 
+    - file_rule: (Sample.*)$
+    - by_sample_outdir: 1
+    - find_by_dir: 1
+    - trimmomatic_dir: "data/processed/{$sample}/trimmomatic"
+    - analysis_dir: "data/processed/analysis"
+    - other_regexp: Sample_(\w+)_(\w+)
+rules:
+    - raw_fastqc:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1
+                        #HPC mem=24GB 
+                        #HPC walltime=24:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=3
+                        #HPC jobname=raw_fastqc
+        process: |
+
+            #NOTE meta_tags={$sample}
+            mkdir -p {$self->{outdir}}/{$sample}_R1_FASTQC && \
+                cat {$self->indir}/*_R1_*gz >  {$self->outdir}/{$sample}_read1.fastq.gz && \
+                /scratch/gencore/software/FastQC/fastqc {$self->outdir}/{$sample}_read1.fastq.gz --extract -o {$self->{outdir}}/{$sample}_R1_FASTQC/ -t 4
+            
+            #NOTE meta_tags={$sample}
+            mkdir -p {$self->{outdir}}/{$sample}_R2_FASTQC && \
+                cat {$self->indir}/*_R2_*gz >  {$self->outdir}/{$sample}_read2.fastq.gz && \
+                /scratch/gencore/software/FastQC/fastqc {$self->outdir}/{$sample}_read2.fastq.gz --extract -o {$self->{outdir}}/{$sample}_R2_FASTQC/ -t 4
+    - trimmomatic:
+        local:
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=48GB 
+                        #HPC walltime=24:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=1
+                        #HPC jobname=trimmomatic
+                        #
+        process: |
+               #NOTE meta_tags={$sample}
+               java -jar /share/apps/NYUAD/trimmomatic/0.32/trimmomatic-0.32.jar PE -threads 12 -phred33 -trimlog {$self->outdir}/{$sample}_trimmomatic.log \
+                 {$self->indir}/{$sample}_read1.fastq.gz {$self->indir}/{$sample}_read2.fastq.gz \
+                 {$self->outdir}/{$sample}_read1_trimmomatic_1PE {$self->outdir}/{$sample}_read1_trimmomatic_1SE \
+                {$self->outdir}/{$sample}_read2_trimmomatic_2PE {$self->outdir}/{$sample}_read2_trimmomatic_2SE \
+                ILLUMINACLIP:/scratch/nd48/Tools/bin/trimmomatic_adapter.fa:2:30:10 TRAILING:3 LEADING:3 SLIDINGWINDOW:4:15 MINLEN:36
+    - trimmomatic_fastqc:
+        local: 
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=48GB 
+                        #HPC walltime=48:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=3
+                        #HPC jobname=trimmomatic_fastqc
+                        #
+        process: |
+                #NOTE meta_tags={$sample}
+                mkdir -p {$self->outdir}/{$sample}_FASTQC_read1_TRIMMED && \
+                        /scratch/gencore/software/FastQC/fastqc {$self->indir}/{$sample}_read1_trimmomatic_1PE --extract -o {$self->outdir}/{$sample}_FASTQC_read1_TRIMMED/ -t 4
+
+                #NOTE meta_tags={$sample}
+                mkdir -p {$self->outdir}/{$sample}_FASTQC_read2_TRIMMED && \
+                        /scratch/gencore/software/FastQC/fastqc {$self->indir}/{$sample}_read2_trimmomatic_2PE --extract -o {$self->outdir}/{$sample}_FASTQC_read2_TRIMMED/ -t 4
+    - trimmomatic_gzip:
+        local:
+                - indir: "data/processed/{$sample}"
+                - before_meta: |
+                        HPC THINGS
+                        
+                        #
+                        #HPC module=NYUAD/2.0 gcc/4.9.1 jdk/1.8.0_31 zlib/1.2.8 openssl/1.0.1i anyenv/1 trimmomatic
+                        #HPC mem=24GB 
+                        #HPC walltime=5:00:00
+                        #HPC cpus_per_task=12
+                        #HPC queue=adserial
+                        #HPC commands_per_node=4
+                        #HPC jobname=trimmomatic_gzip
+                        #
+        process: |
+               #NOTE meta_tags={$sample}
+                gzip {$self->indir}/trimmomatic/{$sample}_read1_trimmomatic_1PE
+
+                #NOTE meta_tags={$sample}
+                gzip {$self->indir}/trimmomatic/{$sample}_read2_trimmomatic_2PE

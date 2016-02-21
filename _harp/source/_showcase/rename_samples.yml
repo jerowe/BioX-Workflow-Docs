@@ -1,0 +1,45 @@
+---
+global:
+    - indir: data/raw
+    - outdir: data/processed
+    - file_rule: (Sample_.*)$
+    - other_regexp: Sample_(\w+)-(\w+)
+    - by_sample_outdir: 1
+    - find_by_dir: 1
+rules:
+    - rename:
+        local:
+            - outdir: data/processed/rename
+        override_process: 1
+        process: |
+                {
+                my @vals = $self->attr->get_values('other_regexp');
+                my $text = $vals[0];
+                my $href = {};
+
+                $OUT .= "touch ".$self->outdir."/sample_key\n\n";
+
+                foreach my $sample (@{$self->samples}){
+                    if($sample =~ qr/$text/){
+                        my(@match) = $sample =~ qr/$text/;
+                        my($cond, $repl) = ($match[0], $match[1]);
+                        if(exists $href->{$cond}){
+                            my $count = $href->{$cond}; 
+                            $count += 1;
+                            $href->{$cond} = $count;
+                        }
+                        else{
+                            $href->{$cond} = 1;
+                        }
+                            my $tt = $href->{$cond};
+                            $OUT .= "echo $sample\tSample_$cond"."_$tt >> ".$self->outdir."/sample_key && \\\n";
+                            $OUT .= "\tcp -rf ".$self->indir."/$sample ".$self->outdir."/Sample_".$cond."_".$href->{$cond}." && \\\n";
+                            $OUT .= "\tfind ".$self->outdir."/Sample_".$cond."_"."$tt -name '$sample*' -print0 |xargs -0 -I {} rename -v s'/-$repl/_$tt/g' {} \n\n";
+
+                    }
+                    else{
+                        $OUT .= "#Sample $sample doesn't match regexp $text!\n";
+                    }
+                }
+                }
+

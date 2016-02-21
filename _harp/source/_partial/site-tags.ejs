@@ -1,0 +1,41 @@
+<% if (sitetags.length){ %>
+<!--BEGIN row-->
+<!--<div class="row">-->
+        <!--Begin Table-->
+        <div class="ibox float-e-margins">
+            <!--BEGIN ibox-title-->
+            <div class="ibox-title">
+                <h5>Tags</h5>
+                <div class="ibox-tools">
+                    <a class="collapse-link">
+                        <i class="fa fa-chevron-up"></i>
+                    </a>
+                    <a class="close-link">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <!--END ibox-title-->
+            <!--BEGIN ibox-content-->
+            <div class="ibox-content">
+                <table class="table table-striped">
+                    <tbody>
+
+                    <%
+                    tags = sitetags;
+
+                    tags.forEach(function(tag){ %>
+                    <tr>
+                        <td style="word-break:break-all;"><%= tag %>  </td>
+                    </tr>
+                    <% }) %>
+
+                    </tbody>
+                </table>
+                <!--END Table-->
+            </div>
+            <!--END ibox-content-->
+    </div>
+<!--</div>-->
+<!--END row-->
+<% } %>

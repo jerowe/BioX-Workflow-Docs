@@ -1,0 +1,18 @@
+<h2> In Harp </h2>
+<%
+    pages.forEach(function(slug){
+        keys = Object.keys(slug);
+    %>
+    <%= JSON.stringify(slug) %>
+    <br>
+
+<% }); %>
+
+<h2> In Harp </h2>
+<%
+    _.forEach(pages, function(key, value){ 
+        _.forEach(key, function(ikey, slug){ %>
+        <p>Slug: <%= JSON.stringify(slug) %> </p>
+        <p>Ikey: <%= JSON.stringify(ikey) %> </p>
+<% }); %>
+<% }); %>
