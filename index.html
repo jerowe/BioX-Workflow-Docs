@@ -46,6 +46,12 @@
                     
                     
                             <li>
+                            <a href="specialvariables.html"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Special Variables</span></a>
+                            </li>
+                    
+                    
+                            <li>
                             <a href="example001.html"><i class="fa fa-flask"></i> <span
                                         class="nav-label"> Example-001</span></a>
                             </li>
@@ -54,12 +60,6 @@
                             <li>
                             <a href="example002.html"><i class="fa fa-flask"></i> <span
                                         class="nav-label"> Example-002</span></a>
-                            </li>
-                    
-                    
-                            <li>
-                            <a href="specialvariables.html"><i class="fa fa-flask"></i> <span
-                                        class="nav-label"> Special Variables</span></a>
                             </li>
                     
                     
@@ -113,46 +113,39 @@
                     <div class="row">
                         <div class="col-lg-12">
 
-                            <h1>Workflow</h1><p>Your workflow is a set of rules and conditions. Conditions come in two flavors,
-local and global. Local variables are local to a rule, and go away after that
-rule has been processed, while global live throughout each rule iteration.</p>
-<h2>Local and Global Variables</h2><p>Global variables will always be available, but can be overwritten by local
-variables contained in your rules.</p>
-<pre><code>---
-global:
-    - indir: /home/user/example-workflow
-    - outdir: /home/user/example-workflow/gemini-wrapper
-    - file_rule: (.vcf)$|(.vcf.gz)$
-    - some_variable: {$self-&gt;indir}/file_to_keep_handy
-    - ext: txt
-rules:
-    - backup:
-        local:
-            - ext: &quot;backup&quot;
-        process: cp {$self-&gt;indir}/{$sample}.csv {$self-&gt;outdir}/{$sample}.{$self-&gt;ext}.csv
-    - rule2:
-        process: cp {$self-&gt;indir}/{$sample}.csv {$self-&gt;outdir}/{$sample}.{$self-&gt;ext}.csv
-</code></pre><h2>Rules</h2><p>Rules are processed in the order they appear.</p>
-<p>Before any rules are processed, first the samples are found. These are grepped using File::Basename, the indir, and the file_rule variable. The
-default is to get rid of the everything after the final &#39;.&#39; .</p>
-<h2>Overriding Processes</h2><p>By default your process is evaluated as</p>
-<pre><code>foreach my $sample (@{$self-&gt;samples}){
-    #Get the value from the process key.
-}
-</code></pre><p>If instead you would like to use the infiles, or some other random process that has nothing to do with your samples, you can override the process
-template. Make sure to use the previously defined $OUT. For more information see the <a href="https://metacpan.org/pod/Text::Template">Text::Template</a> man page.</p>
-<pre><code>rules:
-    - backup:
-        outdir: {$self-&gt;ROOT}/datafiles
-        override_process: 1
-        process: |
-            $OUT .= wget {$self-&gt;some_globally_defined_parameter}
-            {
-            foreach my $infile (@{$self-&gt;infiles}){
-                $OUT .= &quot;dostuff $infile&quot;;
-            }
-            }
+                            <h1>Introduction</h1><p>Most bioinformatics workflows involve starting with a set of samples, and
+processing those samples in one or more steps. Also, most bioinformatics
+workflows are bash based, and no one wants to reinvent the wheel to rewrite
+their code in perl/python/whatever.</p>
+<p>Once you have your configuration all set, to process your entire workflow run</p>
+<pre><code class="language-bash">    biox-workflow.pl --workflow workflow.yml &gt; workflow.sh
 </code></pre>
+<p>Alternately, to select an exact rule</p>
+<pre><code class="language-bash">    biox-workflow.pl --workflow workflow.yml --select_rules bowtie2 &gt; rule1.sh
+</code></pre>
+<p>To match a set of rules using a regexp</p>
+<p>Matches all rules that contain &#39;gatk&#39;, including &#39;gatk_realign_indels&#39;, or &#39;rule_gatk&#39;</p>
+<pre><code class="language-bash">    biox-workflow.pl --workflow workflow.yml --match_rules gatk &gt; gatk.sh
+</code></pre>
+<pre><code class="language-bash">    #Match only those rules beginning with gatk
+    biox-workflow.pl --workflow workflow.yml --match_rules &quot;^gatk&quot; &gt; gatk.sh
+</code></pre>
+<h1>InDepth</h1><h2>Samples</h2><p>For example with our samples test1.vcf and test2.vcf, we want to bgzip and
+annotate using snpeff, and then parse the output using vcf-to-table.pl
+(shameless plug for BioX::Wrapper::Annovar).</p>
+<p>BioX::Workflow assumes your have a set of inputs, known as samples,
+and these inputs will carry on through your pipeline. There are some exceptions
+to this, which we will explore with the resample option.</p>
+<p>BioX::Workflow also assumes your samples are files or directories. <strong>They may also
+be people, frogs, or cells, but first and foremost they are files.</strong></p>
+<h2>Structure</h2><p>It also makes several assumptions about your output structure. It assumes you
+have each of your processes/rules outputting to a distinct directory. Each of
+the assumptions BioX::Workflow makes can be overridden either globally or
+locally. These directories will be created and automatically named based on your process
+name.</p>
+<p>It also assumes the indir of each rule is the outdir of the previous rule.</p>
+<h2>All the things can be modified!</h2><p>All the variables can be modified from their defaults in order to enable custom
+control of your workflow.</p>
 
                         </div>
                         <!--<div class="col-lg-4">-->

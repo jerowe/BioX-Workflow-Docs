@@ -46,6 +46,12 @@
                     
                     
                             <li>
+                            <a href="specialvariables.html"><i class="fa fa-flask"></i> <span
+                                        class="nav-label"> Special Variables</span></a>
+                            </li>
+                    
+                    
+                            <li>
                             <a href="example001.html"><i class="fa fa-flask"></i> <span
                                         class="nav-label"> Example-001</span></a>
                             </li>
@@ -54,12 +60,6 @@
                             <li>
                             <a href="example002.html"><i class="fa fa-flask"></i> <span
                                         class="nav-label"> Example-002</span></a>
-                            </li>
-                    
-                    
-                            <li>
-                            <a href="specialvariables.html"><i class="fa fa-flask"></i> <span
-                                        class="nav-label"> Special Variables</span></a>
                             </li>
                     
                     
@@ -117,8 +117,18 @@
 processing those samples in one or more steps. Also, most bioinformatics
 workflows are bash based, and no one wants to reinvent the wheel to rewrite
 their code in perl/python/whatever.</p>
-<p>Once you have your configuration all set, run</p>
-<pre><code class="language-bash">biox-workflow.pl --workflow workflow.yml &gt; workflow.sh
+<p>Once you have your configuration all set, to process your entire workflow run</p>
+<pre><code class="language-bash">    biox-workflow.pl --workflow workflow.yml &gt; workflow.sh
+</code></pre>
+<p>Alternately, to select an exact rule</p>
+<pre><code class="language-bash">    biox-workflow.pl --workflow workflow.yml --select_rules bowtie2 &gt; rule1.sh
+</code></pre>
+<p>To match a set of rules using a regexp</p>
+<p>Matches all rules that contain &#39;gatk&#39;, including &#39;gatk_realign_indels&#39;, or &#39;rule_gatk&#39;</p>
+<pre><code class="language-bash">    biox-workflow.pl --workflow workflow.yml --match_rules gatk &gt; gatk.sh
+</code></pre>
+<pre><code class="language-bash">    #Match only those rules beginning with gatk
+    biox-workflow.pl --workflow workflow.yml --match_rules &quot;^gatk&quot; &gt; gatk.sh
 </code></pre>
 <h1>InDepth</h1><h2>Samples</h2><p>For example with our samples test1.vcf and test2.vcf, we want to bgzip and
 annotate using snpeff, and then parse the output using vcf-to-table.pl

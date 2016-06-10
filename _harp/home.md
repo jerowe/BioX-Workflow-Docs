@@ -5,11 +5,31 @@ processing those samples in one or more steps. Also, most bioinformatics
 workflows are bash based, and no one wants to reinvent the wheel to rewrite
 their code in perl/python/whatever.
 
-Once you have your configuration all set, run
+Once you have your configuration all set, to process your entire workflow run
 
 ```bash
-biox-workflow.pl --workflow workflow.yml > workflow.sh
+    biox-workflow.pl --workflow workflow.yml > workflow.sh
 ```
+
+Alternately, to select an exact rule
+
+```bash
+    biox-workflow.pl --workflow workflow.yml --select_rules bowtie2 > rule1.sh
+```
+
+To match a set of rules using a regexp
+
+Matches all rules that contain 'gatk', including 'gatk_realign_indels', or 'rule_gatk'
+
+```bash
+    biox-workflow.pl --workflow workflow.yml --match_rules gatk > gatk.sh
+```
+
+```bash
+    #Match only those rules beginning with gatk
+    biox-workflow.pl --workflow workflow.yml --match_rules "^gatk" > gatk.sh
+```
+
 
 # InDepth
 
